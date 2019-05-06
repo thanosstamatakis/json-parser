@@ -19,30 +19,31 @@ extern FILE *yyout;
 %token TK_ARRAY_END                  
 %token TK_NULL               
 %token TK_COLON               
-%token TK_SERIES_NUM
-%token TK_SERIES_STRING
-%token TK_SEPERATOR
 %token TK_BOOLEAN
-%token TK_SERIES_ANY
 %token TK_COMMA
 
 
 %%
-    Series: TK_STRING TK_COMMA TK_STRING;
+    Datatypes: TK_NULL
+    | TK_NUMBER
+    | TK_STRING
+    | TK_BOOLEAN;
+
+    HalfSeries: TK_COMMA Datatypes;
+
+    Series: Datatypes TK_COMMA Datatypes
+    | Series HalfSeries;
 
     Array: TK_ARRAY_START TK_ARRAY_END
-    | TK_ARRAY_START TK_SERIES_NUM TK_ARRAY_END
-    | TK_ARRAY_START TK_SERIES_STRING TK_ARRAY_END
-    | TK_ARRAY_START TK_SERIES_ANY TK_ARRAY_END;
+    | TK_ARRAY_START Series TK_ARRAY_END;
 
     Attribute: TK_STRING TK_COLON TK_STRING
     | TK_STRING TK_COLON TK_NUMBER
-    | TK_STRING TK_COLON Array;
+    | TK_STRING TK_COLON Array
+    | TK_STRING TK_COLON Object;
   
     Object: TK_OBJECT_START Array TK_OBJECT_END
-    | TK_OBJECT_START Attribute TK_OBJECT_END
-    | TK_STRING
-    | Series;
+    | TK_OBJECT_START Attribute TK_OBJECT_END;
 
 %%								    
     

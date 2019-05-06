@@ -32,7 +32,6 @@ null                [null]
 comma               ","
 colon               [:]
 other_chars         [.\-_]
-seperator           (" "*{comma}" "*)
 ws                  [ \t\n]
 
 %%
@@ -46,7 +45,6 @@ ws                  [ \t\n]
 {colon}             { printf("%s", yytext);return TK_COLON; }
 {boolean_value}     { printf("%s", yytext);return TK_BOOLEAN; }
 {null}              { printf("%s", yytext);return TK_NULL; }
-{seperator}         { return TK_SEPERATOR; }
 {ws}                { /* ignore whitespaces */ }
 .                   { printf("%s", yytext);return TK_ILLEGAL_SEQ; }
 
