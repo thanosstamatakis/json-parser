@@ -5,54 +5,96 @@
 int errorCount = 0; 
 int yylex();
 void yyerror(char *);
+long getTextLength(char *);
+void checkTextField(char *);
 extern FILE *yyin;
 extern FILE *yyout;						
 %}
 
+%union {
+    int intval;
+    char* stringval;
+}
+
 %start Object
 %token TK_ILLEGAL_SEQ
-%token TK_OBJECT_START
-%token TK_OBJECT_END
-%token TK_STRING
+%left TK_OBJECT_START
+%left TK_OBJECT_END
+%token <stringval> TK_STRING
 %token TK_NUMBER             
-%token TK_ARRAY_START        
-%token TK_ARRAY_END                  
+%left TK_ARRAY_START        
+%left TK_ARRAY_END                  
 %token TK_NULL               
-%token TK_COLON               
+%left TK_COLON               
 %token TK_BOOLEAN
-%token TK_COMMA
-
+%left TK_COMMA
+%token TK_TEXT
+%token TK_CHAR
 
 %%
-    Datatypes: TK_NULL
-    | TK_NUMBER
-    | TK_STRING
-    | TK_BOOLEAN;
 
-    HalfSeries: TK_COMMA Datatypes;
+Object: 
+    TK_OBJECT_START TK_OBJECT_END
+|   TK_OBJECT_START KeyValuePairs TK_OBJECT_END {printf("Full Object.\n");}
+|   TK_OBJECT_START KeyValuePair TK_OBJECT_END {printf("Single Attribute Object.\n");};
 
-    Series: Datatypes TK_COMMA Datatypes
-    | Series HalfSeries;
+KeyValuePairs: 
+    KeyValuePair TK_COMMA KeyValuePair
+|   KeyValuePairs TK_COMMA KeyValuePair
+|   KeyValuePairs TK_COMMA;
 
-    Array: TK_ARRAY_START TK_ARRAY_END
-    | TK_ARRAY_START Series TK_ARRAY_END;
 
-    Attribute: TK_STRING TK_COLON TK_STRING
-    | TK_STRING TK_COLON TK_NUMBER
-    | TK_STRING TK_COLON Array
-    | TK_STRING TK_COLON Object;
-  
-    Object: TK_OBJECT_START Array TK_OBJECT_END
-    | TK_OBJECT_START Attribute TK_OBJECT_END;
+KeyValuePair:
+    TK_STRING TK_COLON TK_BOOLEAN {printf("%s",$1);}
+|   TK_STRING TK_COLON TK_NULL
+|   TK_STRING TK_COLON TK_NUMBER
+|   TK_STRING TK_COLON Object
+|   TK_TEXT TK_COLON TK_STRING {checkTextField($3);}
+|   TK_STRING TK_COLON TK_STRING
+|   TK_STRING TK_COLON Array;
+
+Array: 
+    TK_ARRAY_START TK_ARRAY_END
+|   TK_ARRAY_START Datatypes TK_ARRAY_END
+|   TK_ARRAY_START Datatypes TK_COMMA TK_ARRAY_END
+|   TK_ARRAY_START CommaSeperatedValues TK_ARRAY_END;
+
+CommaSeperatedValues:
+    Datatypes TK_COMMA Datatypes
+|   CommaSeperatedValues TK_COMMA Datatypes
+|   CommaSeperatedValues TK_COMMA;
+
+Datatypes:
+    TK_STRING
+|   TK_NULL
+|   TK_NUMBER
+|   TK_BOOLEAN
+|   Object
+|   Array;
+
+
 
 %%								    
     
 
-void yyerror (char *s)
-{
+void yyerror (char *s){
     errorCount++;
     fprintf(stderr,"%s on some line \n",s);
 }
+
+long getTextLength (char *s){
+    printf("%ld",strlen(s));
+    return strlen(s);
+}
+
+void checkTextField(char * text){
+    if(strlen(text)>142){
+        printf("\nTextfield too large.\n");
+        exit(1);
+    }
+}
+
+
 int main(int argc, const char **argv)
 {
     // FILE *fptr = fopen("output.json", "w"); 
@@ -60,7 +102,7 @@ int main(int argc, const char **argv)
     // { 
     //     printf("Could not open file"); 
     //     return 0; 
-    // } 
+    // }
 
     if (argc > 1) {
         yyin = fopen(argv[1], "r");

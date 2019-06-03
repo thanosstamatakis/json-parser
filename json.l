@@ -3,9 +3,10 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    int tabs = 0;
+	
+	int tabs = 0;
     int arrTabs = 0;
-    void printTabs(int number);
+	void printTabs(int number);
     void printArrTabs(int number);
     void printArrayStart(char* arrayStart);
     void printArrayEnd(char* arrayEnd);
@@ -13,40 +14,91 @@
     void printNumber(char* number);
     void printObjectStart(char* objectStart);
     void printObjectEnd(char* objectEnd);
+
 %}
 
-%option noyywrap
 
-letter              [a-zA-Z]
-digit               [0-9]
-digits              {digit}*
-number              {digit}|{digits}|-{digits}|({digits}\.{digits})|-({digits}\.{digits})
-dbl_quote           ["]
-string              {dbl_quote}({letter}({letter}|{digits}|{other_chars})*)*{dbl_quote}
-object_start        [{]
-object_end          [}]
-array_start         [\[]
-array_end           [\]]
-boolean_value       ("True"|"False"|"true"|"false")
-null                [null]
-comma               ","
-colon               [:]
-other_chars         [.\-_]
-ws                  [ \t\n]
+letter                  [a-zA-Z]
+
+Digit1to9               [1-9]
+
+Digit                   [0-9]
+
+Digits                  {Digit}+
+
+Integer                 {Digit}|{+-}?{Digit1to9}{Digits}* 
+
+Fraction                [.]{Digits}
+
+E                       ("+"|"-")?({Digits}|{Digits}\.{Digits})?("e"|"E")("+"|"-")?({Digits}|{Digits}\.{Digits})?
+
+Exp                     {E}{Digits}
+
+Hex_Digit               [0-9a-f]
+
+Real_Num                {Integer}|{Integer}{Fraction}|{Integer}{Exp}|{Integer}{Fraction}{Exp}
+
+UnescapedChar           [ -!#-\[\]-~_:+<>=]
+
+EscapedChar             \\["\\bfnrt/]
+
+UnicodeChar             \\u{Hex_Digit}{Hex_Digit}{Hex_Digit}{Hex_Digit}
+
+Char                    {UnescapedChar}|{EscapedChar}|{UnicodeChar}|{letter}
+
+Chars                   {Char}+
+
+Double_Quote            ["]
+
+text                    {Double_Quote}"text"{Double_Quote}
+
+number                  {E}|{Digit}|{Digits}|-{Digits}|({Digits}\.{Digits})|-({Digits}\.{Digits})
+
+json_start              [\{]
+
+json_end                [\}]
+
+array_start             [\[]
+
+array_end               [\]]
+
+boolean_value           ("True"|"False"|"true"|"false")
+
+comma                   ","
+
+colon                   [:]
+
+string                  {Double_Quote}({Char}*){Double_Quote}
+
+null                    "null"
+
+ws                      [ \t\n]
 
 %%
-{comma}             { printf("%s", yytext);return TK_COMMA; }
-{array_start}       { printArrayStart(yytext); return TK_ARRAY_START;}
-{array_end}         { printArrayEnd(yytext); return TK_ARRAY_END; }
-{string}            { printString(yytext);return TK_STRING; }
-{number}            { printNumber(yytext);return TK_NUMBER; }
-{object_start}      { printObjectStart(yytext);return TK_OBJECT_START; }
-{object_end}        { printObjectEnd(yytext);return TK_OBJECT_END; }
-{colon}             { printf("%s", yytext);return TK_COLON; }
-{boolean_value}     { printf("%s", yytext);return TK_BOOLEAN; }
-{null}              { printf("%s", yytext);return TK_NULL; }
+
+{json_start}		{ printObjectStart(yytext);return TK_OBJECT_START; }
+
+{text}              { printString(yytext);return TK_TEXT; }
+
+{string}			{ printString(yytext);yylval.stringval = strdup(yytext);return TK_STRING; }
+
+{colon}				{ printf("%s", yytext);return TK_COLON; }
+
+{comma}				{ printf("%s\n", yytext);printTabs(tabs); return TK_COMMA; }
+
+{json_end}			{ printObjectEnd(yytext);return TK_OBJECT_END; }
+
+{array_start}		{ printArrayStart(yytext); return TK_ARRAY_START; }
+
+{number}			{ printNumber(yytext);return TK_NUMBER; }
+
+{array_end}			{ printArrayEnd(yytext); return TK_ARRAY_END; }
+
+{boolean_value}		{ printf("%s", yytext); return TK_BOOLEAN; }
+
 {ws}                { /* ignore whitespaces */ }
-.                   { printf("%s", yytext);return TK_ILLEGAL_SEQ; }
+
+{Char}              {return TK_CHAR;}
 
 %%
 
@@ -91,5 +143,11 @@ void printObjectStart( char* objectStart) {
 
 void printObjectEnd( char* objectEnd) {
     printf("\n");
+    tabs--;
+    printTabs(tabs);
     printf("%s", objectEnd);
+}
+
+int yywrap() {
+    return 1;
 }
