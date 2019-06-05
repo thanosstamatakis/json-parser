@@ -8,6 +8,9 @@
 int errorCount = 0;
 int user_field_count = 0;
 int irr_field_count = 0;
+int id_counter = 0;
+int ids[20];
+
 
 // Flex/Yacc functions
 int yylex();
@@ -18,6 +21,7 @@ void checkTextField(char *);
 void countUserField(char *);
 void validateUserField(int);
 char* checkTimeStamp(char*); 
+char* checkUserId(char*, char*); 
 
 // External Files
 extern FILE *yyin;
@@ -26,7 +30,7 @@ extern FILE *yyout;
 %}
 
 %union {
-    int intval;
+    char* numval;
     char* stringval;
 }
 
@@ -35,7 +39,7 @@ extern FILE *yyout;
 %left TK_OBJECT_START
 %left TK_OBJECT_END
 %token <stringval> TK_STRING
-%token TK_NUMBER             
+%token <numval>TK_NUMBER             
 %left TK_ARRAY_START        
 %left TK_ARRAY_END                  
 %token TK_NULL               
@@ -84,7 +88,7 @@ UserValues:
 
 UserValue:
     TK_STRING TK_COLON TK_STRING {countUserField($1);}
-|   TK_STRING TK_COLON TK_NUMBER {countUserField($1);};
+|   TK_STRING TK_COLON TK_NUMBER {countUserField($1);printf("%s",checkUserId($1,$3));};
 
 
 Array: 
@@ -121,6 +125,26 @@ void checkTextField(char * text){
         printf("\nTextfield too large.\n");
         exit(1);
     }
+}
+
+
+char* checkUserId (char* field, char* id_as_string){
+    int unique = 1;
+    int id = atoi(id_as_string);
+
+    for (int i = 0; i <=id_counter ; i++){
+        if (ids[i] == id){
+            unique = 0;
+        }
+    }
+    
+    if (!unique){
+        return "User ID is not Unique.\n\n";
+    }
+    
+    ids[id_counter++] == id;
+    
+    return "User ID is Unique.\n\n";
 }
 
 char* checkTimeStamp(char * str){

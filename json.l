@@ -98,7 +98,7 @@ ws                      [ \t\n]
 
 {array_start}		{ printArrayStart(yytext); return TK_ARRAY_START; }
 
-{number}			{ printNumber(yytext);return TK_NUMBER; }
+{number}			{ printNumber(yytext);yylval.numval = strdup(yytext);return TK_NUMBER; }
 
 {array_end}			{ printArrayEnd(yytext); return TK_ARRAY_END; }
 
