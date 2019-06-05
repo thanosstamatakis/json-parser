@@ -52,6 +52,8 @@ Double_Quote            ["]
 
 text                    {Double_Quote}"text"{Double_Quote}
 
+created_at              {Double_Quote}"created_at"{Double_Quote}
+
 number                  {E}|{Digit}|{Digits}|-{Digits}|({Digits}\.{Digits})|-({Digits}\.{Digits})
 
 json_start              [\{]
@@ -70,6 +72,8 @@ colon                   [:]
 
 string                  {Double_Quote}({Char}*){Double_Quote}
 
+user                    {Double_Quote}user{Double_Quote}
+
 null                    "null"
 
 ws                      [ \t\n]
@@ -78,7 +82,11 @@ ws                      [ \t\n]
 
 {json_start}		{ printObjectStart(yytext);return TK_OBJECT_START; }
 
+{created_at}        { printf("%s",yytext);return TK_CREATED; }
+
 {text}              { printString(yytext);return TK_TEXT; }
+
+{user}              {printf("%s",yytext);return TK_USER;}
 
 {string}			{ printString(yytext);yylval.stringval = strdup(yytext);return TK_STRING; }
 
