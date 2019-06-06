@@ -3,13 +3,17 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include <errno.h>
+
+// Define decimal base
+#define BASE         (10)
 
 // Declarations 
 int errorCount = 0;
 int user_field_count = 0;
 int irr_field_count = 0;
-int id_counter = 0;
-int ids[20];
+long id_counter = 0;
+long ids[20];
 
 
 // Flex/Yacc functions
@@ -127,11 +131,14 @@ void checkTextField(char * text){
     }
 }
 
-
+// Check for unique user ids
 char* checkUserId (char* field, char* id_as_string){
     int unique = 1;
-    int id = atoi(id_as_string);
+    char* errCheck;
+    long id = strtol(id_as_string, &errCheck, BASE);
 
+    // Itterate through the array of ids and check
+    // if the new id that was read is unique 
     for (int i = 0; i <=id_counter ; i++){
         if (ids[i] == id){
             unique = 0;
@@ -139,14 +146,15 @@ char* checkUserId (char* field, char* id_as_string){
     }
     
     if (!unique){
-        return "User ID is not Unique.\n\n";
+        return "\n\nUser ID is not Unique.\n\n";
     }
     
-    ids[id_counter++] == id;
-    
-    return "User ID is Unique.\n\n";
+    ids[id_counter++] = id;  
+    return "\n\n\nUser ID is Unique.\n\n";
 }
 
+
+// Check if the timestamp is correct
 char* checkTimeStamp(char * str){
     char * parsed_chars;
     char * string[10];
