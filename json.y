@@ -54,6 +54,7 @@ extern FILE *yyout;
 %token TK_CHAR
 %token TK_USER
 %token TK_CREATED
+%token TK_TWEET
 
 %%
 
@@ -80,6 +81,7 @@ KeyValuePair:
 |   TK_TEXT TK_COLON TK_STRING {checkTextField($3);}
 |   TK_CREATED TK_COLON TK_STRING {printf("%s",checkTimeStamp($3));}
 |   TK_STRING TK_COLON TK_STRING
+|   TK_TWEET TK_COLON Object {printf("Tweeteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");}
 |   TK_USER TK_COLON TK_OBJECT_START UserValues TK_OBJECT_END {validateUserField(user_field_count);}
 |   TK_STRING TK_COLON Array;
 
@@ -262,20 +264,17 @@ void countUserField(char* key){
         user_field_count++;
     }else if (!strcmp(key, "\"name\"")){
         user_field_count++;
-    }else if (!strcmp(key, "\"description\"")){
-        user_field_count++;
     }else if (!strcmp(key, "\"screen_name\"")){
         user_field_count++;
     }else if (!strcmp(key, "\"location\"")){
-        user_field_count++;
-    }else if (!strcmp(key, "\"url\"")){
         user_field_count++;
     }else{irr_field_count++;}
 }
 
 // Validates if the user key is complete with all the necessary fields
 void validateUserField(int count){
-    if(count != 6 || (count == 6 && irr_field_count > 0)){
+    printf("%d", count);
+    if(count != 4){
         printf("\n\n\nUser does not contain all the correct fields, or contains too many fields.\n");
         exit(1);    
     }else{

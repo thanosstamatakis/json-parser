@@ -74,6 +74,8 @@ string                  {Double_Quote}({Char}*){Double_Quote}
 
 user                    {Double_Quote}user{Double_Quote}
 
+tweet                   {Double_Quote}tweet{Double_Quote}
+
 null                    "null"
 
 ws                      [ \t\n]
@@ -87,6 +89,8 @@ ws                      [ \t\n]
 {text}              { printString(yytext);return TK_TEXT; }
 
 {user}              {printf("%s",yytext);return TK_USER;}
+
+{tweet}             {printf("%s",yytext);return TK_TWEET;}
 
 {string}			{ printString(yytext);yylval.stringval = strdup(yytext);return TK_STRING; }
 
