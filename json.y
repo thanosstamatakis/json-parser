@@ -14,6 +14,7 @@ int user_field_count = 0;
 int irr_field_count = 0;
 long id_counter = 0;
 long ids[20];
+int activeTweet = 0;
 
 
 // Flex/Yacc functions
@@ -81,7 +82,7 @@ KeyValuePair:
 |   TK_TEXT TK_COLON TK_STRING {checkTextField($3);}
 |   TK_CREATED TK_COLON TK_STRING {printf("%s",checkTimeStamp($3));}
 |   TK_STRING TK_COLON TK_STRING
-|   TK_TWEET TK_COLON Object {printf("Tweeteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");}
+|   TK_TWEET TK_COLON TK_OBJECT_START TweetValues TK_OBJECT_END {activeTweet = 1;printf("%d",activeTweet);}
 |   TK_USER TK_COLON TK_OBJECT_START UserValues TK_OBJECT_END {validateUserField(user_field_count);}
 |   TK_STRING TK_COLON Array;
 
@@ -91,6 +92,8 @@ UserValues:
 |   UserValues TK_COMMA UserValue
 |   UserValues TK_COMMA;
 
+TweetValues:
+    KeyValuePairs;
 
 UserValue:
     TK_STRING TK_COLON TK_STRING {countUserField($1);}
@@ -127,6 +130,30 @@ void yyerror (char *s){
 
 // Checks the textfield for max character length of 140
 void checkTextField(char * text){
+
+    char * parsed_chars;
+    char * string[10];
+    char * error_msg; 
+    
+    if (activeTweet == 1){
+        
+        // Get the first token
+        parsed_chars = strtok (text," \",.:");
+        string[0] = parsed_chars;
+        int i = 1;
+
+        // Get the rest of the tokens and insert them 
+        // into the string array
+        while (parsed_chars != NULL && i<=7){
+            parsed_chars = strtok (NULL, " \",.:");
+            string[i++] = parsed_chars;
+        }
+
+        for( int n=1; n<i; n++){
+            printf("\n\n%s\n\n", string[n]);
+        }
+
+    }
     if(strlen(text)>142){
         printf("\nTextfield too large.\n");
         exit(1);
