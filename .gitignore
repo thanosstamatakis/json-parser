@@ -1,3 +1,7 @@
 .vscode
-*.json
-
+*.txt
+/jsons
+*.c
+*.o
+*.h
+parser

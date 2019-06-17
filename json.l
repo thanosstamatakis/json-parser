@@ -6,17 +6,20 @@
 	
 	int tabs = 0;
     int arrTabs = 0;
+    int after_comma = 0;
 	void printTabs(int number);
     void printArrTabs(int number);
-    void printArrayStart(char* arrayStart);
-    void printArrayEnd(char* arrayEnd);
+    void printArrayStart( void );
+    void printArrayEnd( void );
     void printString(char* string);
     void printNumber(char* number);
-    void printObjectStart(char* objectStart);
-    void printObjectEnd(char* objectEnd);
+    void printObjectStart(void);
+    void printObjectEnd(void);
+    void printComma(char* comma);
 
 %}
 
+%option yylineno
 
 letter                  [a-zA-Z]
 
@@ -38,7 +41,7 @@ Hex_Digit               [0-9a-f]
 
 Real_Num                {Integer}|{Integer}{Fraction}|{Integer}{Exp}|{Integer}{Fraction}{Exp}
 
-UnescapedChar           [ -!#-\[\]-~_:+<>=]
+UnescapedChar           [ -!#-\[\]-~_:+<>=…]
 
 EscapedChar             \\["\\bfnrt/]
 
@@ -76,37 +79,73 @@ user                    {Double_Quote}user{Double_Quote}
 
 tweet                   {Double_Quote}tweet{Double_Quote}
 
+retweet                 {Double_Quote}retweeted_status{Double_Quote}
+
+truncated               {Double_Quote}truncated{Double_Quote}
+
+display_t_r             {Double_Quote}display_text_range{Double_Quote}
+
+extended_tweet          {Double_Quote}extended_tweet{Double_Quote}
+
+entities                {Double_Quote}entities{Double_Quote}
+
+id_str                  {Double_Quote}id_str{Double_Quote}
+
+full_text               {Double_Quote}full_text{Double_Quote}
+
+indices                 {Double_Quote}indices{Double_Quote}
+
+hashtags                {Double_Quote}hashtags{Double_Quote}
+
 null                    "null"
 
 ws                      [ \t\n]
 
 %%
 
-{json_start}		{ printObjectStart(yytext);return TK_OBJECT_START; }
+{json_start}		{ printObjectStart();return TK_OBJECT_START; }
 
 {created_at}        { printf("%s",yytext);return TK_CREATED; }
 
-{text}              { printString(yytext);return TK_TEXT; }
+{display_t_r}       { printf("%s",yytext);return TK_DISPLAY_T_R; }
 
-{user}              {printf("%s",yytext);return TK_USER;}
+{entities}          { printf("%s",yytext);return TK_ENTITIES; }
 
-{tweet}             {printf("%s",yytext);return TK_TWEET;}
+{indices}           { printf("%s",yytext);return TK_INDICES; }
 
-{string}			{ printString(yytext);yylval.stringval = strdup(yytext);return TK_STRING; }
+{id_str}            { printf("%s",yytext);return TK_ID_STR; }
+
+{hashtags}          { printf("%s",yytext);return TK_HASHTAGS; }
+
+{full_text}         { printf("%s",yytext);return TK_FULL_TEXT; }
+
+{extended_tweet}    { printf("%s",yytext);return TK_EXT_TWEET; }
+
+{text}              { printf("%s",yytext);return TK_TEXT; }
+
+{user}              { printf("%s",yytext);return TK_USER;}
+
+{truncated}         { printf("%s",yytext);return TK_TRUNCATED;}
+
+{tweet}             { printf("%s",yytext);return TK_TWEET;}
+
+{retweet}           { printf("%s",yytext);return TK_RETWEET;}
+
+{string}			{ printf("%s",yytext);yylval.stringval = strdup(yytext);return TK_STRING; }
 
 {colon}				{ printf("%s", yytext);return TK_COLON; }
 
-{comma}				{ printf("%s\n", yytext);printTabs(tabs); return TK_COMMA; }
+{comma}				{ printf("%s\n",yytext);printTabs(tabs);return TK_COMMA; }
 
-{json_end}			{ printObjectEnd(yytext);return TK_OBJECT_END; }
+{json_end}			{ printObjectEnd();return TK_OBJECT_END; }
 
-{array_start}		{ printArrayStart(yytext); return TK_ARRAY_START; }
+{array_start}		{ printArrayStart();return TK_ARRAY_START; }
 
-{number}			{ printNumber(yytext);yylval.numval = strdup(yytext);return TK_NUMBER; }
+{number}			{ printf("%s",yytext);yylval.numval = strdup(yytext);return TK_NUMBER; }
 
-{array_end}			{ printArrayEnd(yytext); return TK_ARRAY_END; }
+{array_end}			{ printArrayEnd(); return TK_ARRAY_END; }
 
-{boolean_value}		{ printf("%s", yytext); return TK_BOOLEAN; }
+{boolean_value}		{ printf("%s", yytext);yylval.booleanval = strdup(yytext);return TK_BOOLEAN; }
 
 {ws}                { /* ignore whitespaces */ }
 
@@ -118,6 +157,7 @@ void printTabs(int number){
     for( int i = 0; i < number; i++ ){
       printf("\t");
     }
+    after_comma =0;
 }
 
 void printArrTabs(int number){
@@ -126,17 +166,17 @@ void printArrTabs(int number){
     }
 }
 
-void printArrayStart( char* arrayStart) {
+void printArrayStart( void ) {
     tabs++;
-    printf("%s\n", arrayStart);
+    printf("[\n");
     printTabs(tabs);
 }
 
-void printArrayEnd( char* arrayEnd) {
+void printArrayEnd( void ) {
     printf("\n");
     tabs--;
     printTabs(tabs);
-    printf("%s", arrayEnd);
+    printf("]");
 }
 
 void printString( char* string) {
@@ -147,17 +187,22 @@ void printNumber( char* number) {
     printf("%s", number);
 }
 
-void printObjectStart( char* objectStart) {
+void printObjectStart(void) {
     tabs++;
-    printf("%s\n", objectStart);
+    printf("{\n");
     printTabs(tabs);
 }
 
-void printObjectEnd( char* objectEnd) {
+void printObjectEnd(void) {
     printf("\n");
     tabs--;
     printTabs(tabs);
-    printf("%s", objectEnd);
+    printf("}");
+}
+
+void printComma( char* comma) {
+    printf("%s\n", comma);
+    printTabs(tabs);
 }
 
 int yywrap() {

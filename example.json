@@ -1,0 +1,76 @@
+{
+    "id_str": "332006545191695744",
+    "created_at": "Mon May 06 15:24:15 +0000 2017",
+    "text": "Text here should be anything as long as it is less than 140 characters. This will be a bit more than 140 characters for demonstration of ...",
+    "user": {
+        "id": 523249,
+        "name": "Twitter Dev",
+        "location": "Internet",
+        "screen_name": "OriginalAuthor",
+        "url": "https://somewhereonthenet.com/",
+        "description": "Your official source for Twitter Platform news, updates & events. Need technical help? Visit https:\/\/twittercommunity.com\/ \u2328\ufe0f #TapIntoTwitter"
+    },
+    "place": {},
+    "entities": {
+        "hashtags": [],
+        "urls": [
+            {
+                "url": "https://t.co/XweGngmxlP",
+                "unwound": {
+                    "title": "Building the Future of the Twitter API Platform",
+                    "url": "https://cards.twitter.com/cards/18ce53wgo4h/3xo1c"
+                }
+            }
+        ],
+        "user_mentions": []
+    },
+    "retweeted_status": {
+        "text": "Text here should be anything as long as it is less than 140 characters. This will be a bit more than 140 characters for demonstration of ...",
+        "user": {
+            "screen_name": "OriginalAuthor"
+        }
+    },
+    "tweet": {
+        "text": "RT @OriginalAuthor Text here should be anything as long as it is less than 140 characters. This will be a bit more than 140 characters fo...",
+        "user": {
+            "screen_name": "SomeoneElse"
+        }
+    },
+    "truncated": true,
+    "display_text_range": [
+        0,
+        140
+    ],
+    "extended_tweet": {
+        "full_text": "Text here should be anything as long as it is less than 140 characters. This will be a bit more than 140 characters for demonstration of the twitter api. This is a test. #test #pointless #useless",
+        "display_text_range": [
+            0,
+            194
+        ],
+        "entities": {
+            "hashtags": [
+                {
+                    "text": "test",
+                    "indices": [
+                        170,
+                        174
+                    ]
+                },
+                {
+                    "text": "pointless",
+                    "indices": [
+                        176,
+                        185
+                    ]
+                },
+                {
+                    "text": "useless",
+                    "indices": [
+                        187,
+                        194
+                    ]
+                }
+            ]
+        }
+    }
+}
